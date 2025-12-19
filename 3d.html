@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D → Mini World Lua Script Converter</title>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>3D → Mini World Lua Script Converter</h1>
+  <h3>Công cụ chuyển đổi 3D Model sang Lua Script</h3>
+
+  <div class="section-token">
+    <div id="loginBox">
+      <div id="g_id_onload"
+        data-client_id="67088298066-j41t84219v1nv3bap6e8oh842i3cqfr3.apps.googleusercontent.com"
+        data-callback="onGoogleLogin"></div>
+      <div class="g_id_signin" data-theme="outline" data-size="large"></div>
+      <div id="loginStatus" style="margin-top:8px; font-size:14px; color:#aaa;"></div>
+    </div>
+  </div>
+
+  <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+
+  <div class="section-video">
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen title="Hướng dẫn"></iframe>
+  </div>
+
+  <div class="section-link">
+    <a href="https://drububu.com/miscellaneous/voxelizer/?out=json" target="_blank" class="btn-link">
+      🌐 Bước 1: Tạo file JSON tại Drububu.com
+    </a>
+  </div>
+
+  <div class="section-token">
+    <div id="tokenUI">
+      <div style="color:#aaa; font-style:italic">Vui lòng đăng nhập để xem Token</div>
+    </div>
+  </div>
+
+  <div class="section-upload">
+    <div id="uploadBox">
+      <div style="font-size:40px; margin-bottom:10px">📂</div>
+      <b>Kéo thả file JSON hoặc click để chọn</b>
+      <div id="fileName">Chưa chọn file</div>
+    </div>
+    <input type="file" id="jsonFile" accept=".json" hidden>
+  </div>
+
+  <button id="convertBtn" disabled>CHỜ FILE...</button>
+
+  <div id="notify" class="notify"></div>
+  <button id="copyBtn" disabled>📋 Copy Script</button>
+  <pre id="output">// Script kết quả sẽ hiển thị ở đây...</pre>
+  <pre>ScriptSupportEvent:registerEvent("Game.AnyPlayer.EnterGame", function(e)
+    local _, u = Player:getHostUin()
+    uin = u
+    Player:gainItems(uin, 959, 1, 1)
+    Game:msgBox([[Đặt khối gia củ rồi nhấp để dựng mô hình!
+Chỉnh tầm nhìn xa nhất để tránh bị lỗi!]])
+end)
+
+ScriptSupportEvent:registerEvent("Player.ClickBlock", function(e)
+    if e.blockid == 959 then
+    Block:destroyBlock(e.x, e.y, e.z, false)
+    Player:setPosition(e.eventobjid, e.x + X_CENTER, e.y + Y_CENTER, e.z + Z_CENTER)
+    Player:setActionAttrState(e.eventobjid, 1, false)
+
+    for _, b in ipairs(blocks) do
+        Block:setBlockAll(
+        b.x + e.x,
+        b.y + e.y,
+        b.z + e.z,
+        b.id,
+        b.data
+        )
+    end
+
+    Game:msgBox("Đã dựng mô hình thành công!")
+    Player:setActionAttrState(e.eventobjid, 1, true)
+    end
+end)</pre>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
