@@ -164,3 +164,14 @@ copyBtn.onclick = () => {
   navigator.clipboard.writeText(output.textContent);
   showNotify("Đã copy script vào bộ nhớ tạm!", true);
 };
+
+fetch("https://threed-tool-backend.onrender.com/")
+  .then(res => res.text())
+  .then(text => {
+    console.log("Backend says:", text)
+    alert("Backend says: " + text)
+  })
+  .catch(err => {
+    console.error(err)
+    alert("Cannot connect to backend")
+  })
