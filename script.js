@@ -8,21 +8,14 @@ function getTokens() {
   return 9999;
 }
 
-function updateTokenUI(){
-  if(!window.USER) return;
-  const tokens = getTokens();
-  const ui = document.getElementById("tokenUI");
-  
-  ui.innerHTML = `
-    <div class="token-badge">
-      <span class="token-icon">🪙</span>
-      <span class="token-value">${tokens}</span>
-      <div class="token-sub">
-        <b>Token khả dụng</b><br>
-        1 token = ${BLOCKS_PER_TOKEN} blocks
-      </div>
-    </div>
-  `;
+async function updateTokenUI() {
+  const res = await fetch('https://threed-tool-backend.onrender.com/me', {
+    credentials: 'include'
+  })
+  const data = await res.json()
+
+  document.getElementById('tokenInfo').textContent =
+    `Tokens: ${data.tokens} | Blocks: ${data.totalBlocks}`
 }
 
 // dang nhap google
@@ -150,7 +143,7 @@ convertBtn.onclick = async function () {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        test: true
+        blocks: TOTAL_BLOCKS
       })
     })
 
