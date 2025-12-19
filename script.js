@@ -128,23 +128,24 @@ fileInput.onchange = () => {
   reader.readAsText(file);
 };
 
-function updateConvertButton(count){
-  if(!window.USER) {
+function updateConvertButton(count) {
+  if (!window.USER) {
     convertBtn.textContent = "VUI LÒNG ĐĂNG NHẬP TRƯỚC";
     convertBtn.disabled = true;
     return;
   }
-  if(!CURRENT_FILE_DATA) return;
+  if (!CURRENT_FILE_DATA) return;
 
-  const canAfford = USER_BLOCKS >= count;
+  const canAfford = USER_TOKENS >= CURRENT_COST;
 
   convertBtn.disabled = !canAfford;
   
-  if(canAfford){
+  if (canAfford) {
     convertBtn.innerHTML = `CHUYỂN ĐỔI NGAY <br><span style="font-size:14px; font-weight:normal">(Tiêu tốn: ${CURRENT_COST} Token cho ${count} blocks)</span>`;
     convertBtn.style.background = "linear-gradient(90deg, #2196f3, #21cbf3)";
   } else {
-    convertBtn.innerHTML = `KHÔNG ĐỦ TOKEN <br><span style="font-size:14px; font-weight:normal">(Cần ${CURRENT_COST} - Bạn có ${USER_TOKENS})</span>`;
+
+    convertBtn.innerHTML = `KHÔNG ĐỦ TOKEN <br><span style="font-size:14px; font-weight:normal">(Cần ${CURRENT_COST} Token - Bạn chỉ có ${USER_TOKENS})</span>`;
     convertBtn.style.background = "#555";
   }
 }
