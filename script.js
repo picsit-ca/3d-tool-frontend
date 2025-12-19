@@ -1,7 +1,12 @@
 // bien toan cau
 const BLOCKS_PER_TOKEN = 1000;
 let CURRENT_FILE_DATA = null; 
-let CURRENT_COST = 0;         
+let CURRENT_COST = 0;       
+
+function getTokens() {
+  if (!window.USER) return 0;
+  return 9999;
+}
 
 function updateTokenUI(){
   if(!window.USER) return;
