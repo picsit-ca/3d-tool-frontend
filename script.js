@@ -30,16 +30,21 @@ function parseJwt(token){
   return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
 }
 
-function onGoogleLogin(res){
+async function onGoogleLogin(res){
   const p = parseJwt(res.credential);
   window.USER = { id:p.sub, email:p.email, name:p.name };
 
   document.getElementById("loginStatus").textContent = "Xin chào, " + p.name;
-  
-  // an nut dang nhap cho gon
   document.querySelector(".g_id_signin").style.display = "none";
 
-  // neu chon file trc khi dang nhan thi dat lai nut
+  // 🔥 LOGIN BACKEND (QUAN TRỌNG NHẤT)
+  await fetch('https://threed-tool-backend.onrender.com/login', {
+    method: 'POST',
+    credentials: 'include'
+  });
+
+  updateTokenUI();
+
   if(CURRENT_FILE_DATA) updateConvertButton();
 }
 
@@ -169,14 +174,3 @@ copyBtn.onclick = () => {
   navigator.clipboard.writeText(output.textContent);
   showNotify("Đã copy script vào bộ nhớ tạm!", true);
 };
-
-fetch("https://threed-tool-backend.onrender.com/")
-  .then(res => res.text())
-  .then(text => {
-    console.log("Backend says:", text)
-    alert("Backend says: " + text)
-  })
-  .catch(err => {
-    console.error(err)
-    alert("Cannot connect to backend")
-  })
