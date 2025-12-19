@@ -1,21 +1,48 @@
 // bien toan cau
 const BLOCKS_PER_TOKEN = 1000;
 let CURRENT_FILE_DATA = null; 
-let CURRENT_COST = 0;       
-
-function getTokens() {
-  if (!window.USER) return 0;
-  return 9999;
-}
+let CURRENT_COST = 0;      
+let USER_BLOCKS = 0;
+let USER_TOKENS = 0; 
 
 async function updateTokenUI() {
-  const res = await fetch('https://threed-tool-backend.onrender.com/me', {
-    credentials: 'include'
-  })
-  const data = await res.json()
+  const el = document.getElementById('tokenUI');
 
-  document.getElementById('tokenInfo').textContent =
-    `Tokens: ${data.tokens} | Blocks: ${data.totalBlocks}`
+  try {
+    const res = await fetch('https://threed-tool-backend.onrender.com/me', {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      el.innerHTML = `
+        <div style="color:#aaa; font-style:italic">
+          Vui lòng đăng nhập để xem Token
+        </div>`;
+      return;
+    }
+
+    const data = await res.json();
+
+    USER_BLOCKS = data.totalBlocks;
+    USER_TOKENS = data.tokens;
+
+    el.innerHTML = `
+      <div style="font-weight:bold">
+        Tokens: ${data.tokens}
+      </div>
+      <div style="font-size:14px; color:#888">
+        Blocks còn lại: ${data.totalBlocks}
+      </div>
+    `;
+  } catch (err) {
+    el.innerHTML = `
+      <div style="color:red">
+        Không kết nối được server
+      </div>`;
+  }
+  if (CURRENT_FILE_DATA) {
+    updateConvertButton(CURRENT_FILE_DATA.length);
+  }
 }
 
 // dang nhap google
@@ -109,8 +136,7 @@ function updateConvertButton(count){
   }
   if(!CURRENT_FILE_DATA) return;
 
-  const userTokens = getTokens();
-  const canAfford = userTokens >= CURRENT_COST;
+  const canAfford = USER_BLOCKS >= count;
 
   convertBtn.disabled = !canAfford;
   
@@ -118,7 +144,7 @@ function updateConvertButton(count){
     convertBtn.innerHTML = `CHUYỂN ĐỔI NGAY <br><span style="font-size:14px; font-weight:normal">(Tiêu tốn: ${CURRENT_COST} Token cho ${count} blocks)</span>`;
     convertBtn.style.background = "linear-gradient(90deg, #2196f3, #21cbf3)";
   } else {
-    convertBtn.innerHTML = `KHÔNG ĐỦ TOKEN <br><span style="font-size:14px; font-weight:normal">(Cần ${CURRENT_COST} - Bạn có ${userTokens})</span>`;
+    convertBtn.innerHTML = `KHÔNG ĐỦ TOKEN <br><span style="font-size:14px; font-weight:normal">(Cần ${CURRENT_COST} - Bạn có ${USER_TOKENS})</span>`;
     convertBtn.style.background = "#555";
   }
 }
@@ -143,7 +169,7 @@ convertBtn.onclick = async function () {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        blocks: TOTAL_BLOCKS
+        blocks: CURRENT_FILE_DATA.length
       })
     })
 
@@ -154,12 +180,23 @@ convertBtn.onclick = async function () {
       return
     }
 
+    if (data.success) {
+      USER_BLOCKS = data.totalBlocks;
+      USER_TOKENS = data.tokens;
+      updateTokenUI();
+    }
+
+
     showNotify(data.message, true)
   } catch (e) {
     showNotify('Không kết nối được server', false)
   } finally {
     convertBtn.disabled = false
-    convertBtn.textContent = "CONVERT"
+    if (CURRENT_FILE_DATA) {
+      updateConvertButton(CURRENT_FILE_DATA.length);
+    } else {
+      convertBtn.textContent = "CONVERT";
+    }
   }
 }
 
