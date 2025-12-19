@@ -128,55 +128,37 @@ function showNotify(msg, ok){
 }
 
 // chuyen doi
-convertBtn.onclick = () => {
-  if(!window.USER || !CURRENT_FILE_DATA) return;
+convertBtn.onclick = async function () {
+  convertBtn.disabled = true
+  convertBtn.textContent = "ĐANG XỬ LÝ..."
 
   try {
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
+    const res = await fetch('https://threed-tool-backend.onrender.com/convert', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        test: true
+      })
+    })
 
-    const blocks = CURRENT_FILE_DATA.map(v => {
-      const hex = "#" + [v.red,v.green,v.blue]
-        .map(x => (+x).toString(16).padStart(2,"0").toUpperCase()).join("");
-      const bc = BlockColor[hex] || nearestColor(v.red,v.green,v.blue);
-      
-      const blockX = -v.x;
-      const blockY = v.y;
-      const blockZ = v.z;
+    const data = await res.json()
 
-      //min/max
-      minX = Math.min(minX, blockX);
-      maxX = Math.max(maxX, blockX);
-      minY = Math.min(minY, blockY);
-      maxY = Math.max(maxY, blockY);
-      minZ = Math.min(minZ, blockZ);
-      maxZ = Math.max(maxZ, blockZ);
+    if (!data.success) {
+      showNotify(data.error || 'Lỗi server', false)
+      return
+    }
 
-      return {x: blockX, y: blockY, z: blockZ, id: bc.id, data: bc.data};
-    });
-    
-    const X_CENTER = Math.floor((minX + maxX) / 2);
-    const Y_CENTER = maxY;
-    const Z_CENTER = Math.floor((minZ + maxZ) / 2);
-
-    const lua = `-- hu
--- Total Blocks: ${blocks.length}
-local X_CENTER = ${X_CENTER}
-local Y_CENTER = ${Y_CENTER}
-local Z_CENTER = ${Z_CENTER}
-blocks={
-${blocks.map(b=>`{x=${b.x},y=${b.y},z=${b.z},id=${b.id},data=${b.data}}`).join(",\n")}
-}`;
-
-    output.textContent = lua;
-    copyBtn.disabled = false;
-    showNotify("✅ Chuyển đổi thành công! Đã trừ " + CURRENT_COST + " token.", true);
-    
-  } catch(err){
-    showNotify("Lỗi convert: " + err, false);
+    showNotify(data.message, true)
+  } catch (e) {
+    showNotify('Không kết nối được server', false)
+  } finally {
+    convertBtn.disabled = false
+    convertBtn.textContent = "CONVERT"
   }
-};
+}
 
 copyBtn.onclick = () => {
   navigator.clipboard.writeText(output.textContent);
