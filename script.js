@@ -14,35 +14,34 @@ async function updateTokenUI() {
     });
 
     if (!res.ok) {
+      window.USER = null;
+      USER_TOKENS = 0;
+
       el.innerHTML = `
         <div style="color:#aaa; font-style:italic">
           Vui lòng đăng nhập để xem Token
         </div>`;
-      return;
+    } else {
+      const data = await res.json();
+
+      window.USER = data;
+      USER_TOKENS = data.tokens;
+
+      el.innerHTML = `
+        <div style="font-weight:bold">
+          Tokens: ${USER_TOKENS} 🪙
+        </div>`;
     }
-
-    const data = await res.json();
-
-    USER_BLOCKS = data.totalBlocks;
-    USER_TOKENS = data.tokens;
-
-    el.innerHTML = `
-      <div style="font-weight:bold">
-        Tokens: ${data.tokens}
-      </div>
-      <div style="font-size:14px; color:#888">
-        Blocks còn lại: ${data.totalBlocks}
-      </div>
-    `;
   } catch (err) {
     el.innerHTML = `
       <div style="color:red">
         Không kết nối được server
       </div>`;
   }
-  if (CURRENT_FILE_DATA) {
-    updateConvertButton(CURRENT_FILE_DATA.length);
-  }
+
+  updateConvertButton(
+    CURRENT_FILE_DATA ? CURRENT_FILE_DATA.blockCount : 0
+  );
 }
 
 // dang nhap google
@@ -57,7 +56,7 @@ async function onGoogleLogin(res){
   document.getElementById("loginStatus").textContent = "Xin chào, " + p.name;
   document.querySelector(".g_id_signin").style.display = "none";
 
-  // 🔥 LOGIN BACKEND (QUAN TRỌNG NHẤT)
+  // LOGIN BACKEND
   await fetch('https://threed-tool-backend.onrender.com/login', {
     method: 'POST',
     credentials: 'include'
