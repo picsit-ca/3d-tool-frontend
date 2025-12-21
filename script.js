@@ -5,6 +5,9 @@ let CURRENT_COST = 0;
 let USER_BLOCKS = 0;
 let USER_TOKENS = 0; 
 
+let isConverting = false;
+let abortController = null;
+
 async function updateTokenUI() {
   const el = document.getElementById('tokenUI');
 
@@ -157,48 +160,53 @@ function showNotify(msg, ok){
 }
 
 // chuyen doi
-convertBtn.onclick = async function () {
-  convertBtn.disabled = true
-  convertBtn.textContent = "ĐANG XỬ LÝ..."
+convertBtn.onclick = async () => {
+  if (isConverting) {
+    abortController.abort();
+    return;
+  }
+
+  isConverting = true;
+  abortController = new AbortController();
+
+  convertBtn.disabled = false;
+  convertBtn.textContent = "ĐANG CHUYỂN ĐỔI... (Nhấn để hủy)";
 
   try {
-    const res = await fetch('https://threed-tool-backend.onrender.com/convert', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        blocks: CURRENT_FILE_DATA.length
-      })
-    })
+    const res = await fetch(
+      'https://threed-tool-backend.onrender.com/convert',
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blocks: CURRENT_FILE_DATA.blockCount
+        }),
+        signal: abortController.signal
+      }
+    );
 
-    const data = await res.json()
+    const data = await res.json();
 
-    if (!data.success) {
-      showNotify(data.error || 'Lỗi server', false)
-      return
+    if (!res.ok) {
+      alert(data.error || 'Convert thất bại');
+      return;
     }
 
-    if (data.success) {
-      USER_BLOCKS = data.totalBlocks;
-      USER_TOKENS = data.tokens;
-      updateTokenUI();
-    }
-
-
-    showNotify(data.message, true)
-  } catch (e) {
-    showNotify('Không kết nối được server', false)
-  } finally {
-    convertBtn.disabled = false
-    if (CURRENT_FILE_DATA) {
-      updateConvertButton(CURRENT_FILE_DATA.length);
+    alert('Convert thành công!');
+    await updateTokenUI(); // cap nhat token
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      console.log('Convert bị hủy');
     } else {
-      convertBtn.textContent = "CONVERT";
+      alert('Lỗi server');
     }
+  } finally {
+    isConverting = false;
+    abortController = null;
+    updateConvertButton(CURRENT_FILE_DATA.blockCount);
   }
-}
+};
 
 copyBtn.onclick = () => {
   navigator.clipboard.writeText(output.textContent);
