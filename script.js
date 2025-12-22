@@ -76,6 +76,37 @@ const BlockColor={
   "#273238":{id:682,data:11}
 };
 
+const scriptRoot = `
+ScriptSupportEvent:registerEvent("Game.AnyPlayer.EnterGame", function(e)
+    local _, u = Player:getHostUin()
+    uin = u
+    Player:gainItems(uin, 959, 1, 1)
+    Game:msgBox([[Đặt khối gia củ rồi nhấp để dựng mô hình!
+Chỉnh tầm nhìn xa nhất để tránh bị lỗi!]])
+end)
+
+ScriptSupportEvent:registerEvent("Player.ClickBlock", function(e)
+    if e.blockid == 959 then
+    Block:destroyBlock(e.x, e.y, e.z, false)
+    Player:setPosition(e.eventobjid, e.x + X_CENTER, e.y + Y_CENTER, e.z + Z_CENTER)
+    Player:setActionAttrState(e.eventobjid, 1, false)
+
+    for _, b in ipairs(blocks) do
+        Block:setBlockAll(
+        b.x + e.x,
+        b.y + e.y,
+        b.z + e.z,
+        b.id,
+        b.data
+        )
+    end
+
+    Game:msgBox("Đã dựng mô hình thành công!")
+    Player:setActionAttrState(e.eventobjid, 1, true)
+    end
+end)
+`
+
 function nearestColor(r,g,b){
   let best={id:667,data:0},dist=1e9;
   for(const h in BlockColor){
@@ -86,6 +117,57 @@ function nearestColor(r,g,b){
     if(d<dist){dist=d;best=BlockColor[h];}
   }
   return best;
+}
+
+function convertToLua() {
+  try {
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
+
+    const blocks = CURRENT_FILE_DATA.map(v => {
+      const hex = "#" + [v.red, v.green, v.blue]
+        .map(x => (+x).toString(16).padStart(2, "0").toUpperCase())
+        .join("");
+
+      const bc = BlockColor[hex] || nearestColor(v.red, v.green, v.blue);
+
+      const blockX = -v.x;
+      const blockY = v.y;
+      const blockZ = v.z;
+
+      minX = Math.min(minX, blockX);
+      maxX = Math.max(maxX, blockX);
+      minY = Math.min(minY, blockY);
+      maxY = Math.max(maxY, blockY);
+      minZ = Math.min(minZ, blockZ);
+      maxZ = Math.max(maxZ, blockZ);
+
+      return { x: blockX, y: blockY, z: blockZ, id: bc.id, data: bc.data };
+    });
+
+    const X_CENTER = Math.floor((minX + maxX) / 2);
+    const Y_CENTER = maxY;
+    const Z_CENTER = Math.floor((minZ + maxZ) / 2);
+
+    const lua = `-- hu
+-- Total Blocks: ${blocks.length}
+local X_CENTER = ${X_CENTER}
+local Y_CENTER = ${Y_CENTER}
+local Z_CENTER = ${Z_CENTER}
+blocks={
+${blocks.map(b =>
+  `{x=${b.x},y=${b.y},z=${b.z},id=${b.id},data=${b.data}}`
+).join(",\n")}
+}`;
+
+    output.textContent = lua + scriptRoot;
+    copyBtn.disabled = false;
+    showNotify("✅ Chuyển đổi thành công!", true);
+
+  } catch (err) {
+    showNotify("Lỗi convert: " + err, false);
+  }
 }
 
 // ui
@@ -171,7 +253,7 @@ convertBtn.onclick = async () => {
   if (CURRENT_COST >= 10) {
     const ok = confirm(
       `🤓 Model này sẽ tốn ${CURRENT_COST} Token.\n\n` +
-      `Có vẻ là ổn rồi đó bạn muốn tiếp tục chuyển đổi không?`
+      `Model này khá lớn đó bạn muốn tiếp tục không?(ok để tiếp tục)`
     );
     if (!ok) {
       console.log('Người dùng dừng convert');
@@ -181,7 +263,7 @@ convertBtn.onclick = async () => {
   else if (CURRENT_COST < 5) {
     const ok = confirm(
       `🤓 Model này sẽ tốn ${CURRENT_COST} Token.\n\n` +
-      `Có vẻ là hơi nhỏ nhỉ, làm model to hơn nhìn cho đẹp nhé?`
+      `Model này hơi nhỏ nhỉ bạn muốn tiếp tục không?(ok để tiếp tục)`
     );
     if (!ok) {
       console.log('Người dùng muốn chỉnh kích thước file');
@@ -219,6 +301,8 @@ convertBtn.onclick = async () => {
 
     alert('Convert thành công!');
     await updateTokenUI();
+
+    convertToLua()
 
   } catch (err) {
     if (err.name === 'AbortError') {
