@@ -10,7 +10,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: url("https://scontent.fhan15-1.fna.fbcdn.net/v/t39.30808-6/589728961_1733144931065289_3937385469999234207_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeGVBnTJyw1RYMapu0pOoG7GFu4SJDPJ_-AW7hIkM8n_4Hd6u2q4yJPcmM_C3d-zuDNiJBhjdsgAaZGsVFWS5FUJ&_nc_ohc=uh474pGuYmIQ7kNvwHaCZh6&_nc_oc=Adlv7McIyHQO_o5TxhoTV-kgmyysCdLWBlvgQxhm_8O2M4hlR7-qjZO3nPdlgKr6t7x06twQmKniXClXsv_WuLFP&_nc_zt=23&_nc_ht=scontent.fhan15-1.fna&_nc_gid=x5Srbfj6SpBRGg4FHd3GOQ&oh=00_AfmemdnWHFLR0uGxPUkEjAm75LFM-tw-cRqF19WjNnLg0w&oe=693F3706") center/cover no-repeat fixed;
+  background: url("images/noel_backgrounds.jpg") center/cover no-repeat fixed;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #fff;
   min-height: 100vh;
