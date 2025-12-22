@@ -59,34 +59,6 @@
   <div id="notify" class="notify"></div>
   <button id="copyBtn" disabled>📋 Copy Script</button>
   <pre id="output">// Script kết quả sẽ hiển thị ở đây...</pre>
-  <pre>ScriptSupportEvent:registerEvent("Game.AnyPlayer.EnterGame", function(e)
-    local _, u = Player:getHostUin()
-    uin = u
-    Player:gainItems(uin, 959, 1, 1)
-    Game:msgBox([[Đặt khối gia củ rồi nhấp để dựng mô hình!
-Chỉnh tầm nhìn xa nhất để tránh bị lỗi!]])
-end)
-
-ScriptSupportEvent:registerEvent("Player.ClickBlock", function(e)
-    if e.blockid == 959 then
-    Block:destroyBlock(e.x, e.y, e.z, false)
-    Player:setPosition(e.eventobjid, e.x + X_CENTER, e.y + Y_CENTER, e.z + Z_CENTER)
-    Player:setActionAttrState(e.eventobjid, 1, false)
-
-    for _, b in ipairs(blocks) do
-        Block:setBlockAll(
-        b.x + e.x,
-        b.y + e.y,
-        b.z + e.z,
-        b.id,
-        b.data
-        )
-    end
-
-    Game:msgBox("Đã dựng mô hình thành công!")
-    Player:setActionAttrState(e.eventobjid, 1, true)
-    end
-end)</pre>
 
 </div>
 
