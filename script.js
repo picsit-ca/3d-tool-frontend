@@ -204,7 +204,7 @@ convertBtn.onclick = async () => {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          blocks: CURRENT_FILE_DATA.blockCount
+          blocks: CURRENT_FILE_DATA.length
         }),
         signal: abortController.signal
       }
