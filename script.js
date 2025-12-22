@@ -161,11 +161,35 @@ function showNotify(msg, ok){
 
 // chuyen doi
 convertBtn.onclick = async () => {
+  // 1️⃣ nếu đang convert thì coi như HỦY
   if (isConverting) {
     abortController.abort();
     return;
   }
 
+  // xac nhan file lon
+  if (CURRENT_COST >= 10) {
+    const ok = confirm(
+      `🤓 Model này sẽ tốn ${CURRENT_COST} Token.\n\n` +
+      `Có vẻ là ổn rồi đó bạn muốn tiếp tục chuyển đổi không?`
+    );
+    if (!ok) {
+      console.log('Người dùng dừng convert');
+      return;
+    }
+  }
+  else if (CURRENT_COST < 5) {
+    const ok = confirm(
+      `🤓 Model này sẽ tốn ${CURRENT_COST} Token.\n\n` +
+      `Có vẻ là hơi nhỏ nhỉ, làm model to hơn nhìn cho đẹp nhé?`
+    );
+    if (!ok) {
+      console.log('Người dùng muốn chỉnh kích thước file');
+      return;
+    }
+  }
+
+  // converting
   isConverting = true;
   abortController = new AbortController();
 
@@ -194,7 +218,8 @@ convertBtn.onclick = async () => {
     }
 
     alert('Convert thành công!');
-    await updateTokenUI(); // cap nhat token
+    await updateTokenUI();
+
   } catch (err) {
     if (err.name === 'AbortError') {
       console.log('Convert bị hủy');
