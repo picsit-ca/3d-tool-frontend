@@ -87,17 +87,18 @@ end)
 
 ScriptSupportEvent:registerEvent("Player.ClickBlock", function(e)
     if e.blockid == 959 then
-    Block:destroyBlock(e.x, e.y, e.z, false)
-    Player:setPosition(e.eventobjid, e.x + X_CENTER, e.y + Y_CENTER, e.z + Z_CENTER)
+    local x, y, z = e.x, e.y, e.z
+    Block:destroyBlock(x, y, z, false)
+    Player:setPosition(e.eventobjid, x + X_CENTER, y + Y_CENTER, z + Z_CENTER)
     Player:setActionAttrState(e.eventobjid, 1, false)
 
     for _, b in ipairs(blocks) do
         Block:setBlockAll(
-        b.x + e.x,
-        b.y + e.y,
-        b.z + e.z,
-        b.id,
-        b.data
+        b[1] + x,
+        b[2] + y,
+        b[3] + z,
+        b[4],
+        b[5]
         )
     end
 
@@ -157,7 +158,7 @@ local Y_CENTER = ${Y_CENTER}
 local Z_CENTER = ${Z_CENTER}
 blocks={
 ${blocks.map(b =>
-  `{x=${b.x},y=${b.y},z=${b.z},id=${b.id},data=${b.data}}`
+  `{${b.x},${b.y},${b.z},${b.id},${b.data}}`
 ).join(",\n")}
 }`;
 
