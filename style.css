@@ -204,3 +204,211 @@ pre {
 
 /* hop dang nhap */
 #loginBox { margin-bottom: 10px; }
+
+.btn-shop-nav {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+  transition: transform 0.2s;
+  display: inline-block;
+  text-decoration: none;
+}
+.btn-shop-nav:hover {
+  transform: scale(1.05);
+  background: #e68900;
+}
+
+/* Container cua shop */
+#shopSection {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.shop-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+/* ke hang */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+/* card san pham */
+.product-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  border-color: #ff9800;
+}
+
+/* anh san pham */
+.product-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  background-color: #333;
+  margin-bottom: 10px;
+}
+
+.product-name {
+  font-size: 1.1em;
+  margin: 10px 0;
+  font-weight: bold;
+  color: #fff;
+}
+
+.product-price {
+  color: #4caf50;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* buy btn */
+.btn-buy {
+  background: linear-gradient(45deg, #ff9800, #ff5722);
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-buy:hover {
+  opacity: 0.9;
+}
+
+.modal {
+  display: none; /* mac dinh an */
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: #2a2a2a;
+  margin: 10% auto; 
+  padding: 20px;
+  border: 1px solid #444;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+  text-align: center;
+  color: white;
+  position: relative;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {transform: translateY(-50px); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
+}
+
+/* dong chuyen khoan */
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+/* QR image */
+.qr-frame {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin: 15px 0;
+}
+.qr-img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+/* thong tin thanh toan */
+.pay-info {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: left;
+  margin-bottom: 15px;
+}
+.pay-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.pay-val {
+  font-weight: bold;
+  color: #ff9800;
+}
+
+/* khu vuc noi dung chuyen khoan */
+.transfer-box {
+  background: #111;
+  border: 1px dashed #555;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.transfer-text {
+  font-family: monospace;
+  color: #00e676;
+  font-size: 1.1em;
+}
+.btn-copy-trans {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.btn-copy-trans:hover { background: #666; }

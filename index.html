@@ -14,8 +14,12 @@
 
 <div class="container">
 
-  <h1>3D → Mini World Lua Script Converter</h1>
+  <h1>Auto 3D | Mini World</h1>
   <h3>Công cụ chuyển đổi 3D Model sang Lua Script</h3>
+
+  <div style="text-align: center;">
+      <button onclick="scrollToShop()" class="btn-shop-nav">🛍️ Xem Cửa Hàng Tokens</button>
+  </div>
 
   <div class="section-token">
     <div id="loginBox">
@@ -30,11 +34,11 @@
   <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
 
   <div class="section-video">
-    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen title="Hướng dẫn"></iframe>
+    <iframe src="https://youtu.be/dQw4w9WgXcQ?si=CxFQPpdc5WdxFNT7" allowfullscreen title="Hướng dẫn"></iframe>
   </div>
 
   <div class="section-link">
-    <a href="https://drububu.com/miscellaneous/voxelizer/?out=json" target="_blank" class="btn-link">
+    <a href="https://drububu.com/miscellaneous/voxelizer/?out=jso" target="_blank" class="btn-link">
       🌐 Bước 1: Tạo file JSON tại Drububu.com
     </a>
   </div>
@@ -60,6 +64,75 @@
   <button id="copyBtn" disabled>📋 Copy Script</button>
   <pre id="output">// Script kết quả sẽ hiển thị ở đây...</pre>
 
+  <div id="shopSection">
+    <h2 class="shop-title">🛒 Cửa Hàng Tokens</h2>
+    
+    <div class="product-grid">
+      
+      <div class="product-card">
+        <img src="images/token.png" alt="small token pack" class="product-img">
+        <div class="product-name">small tokens pack + 10 tokens</div>
+        <div class="product-price">10.000đ</div>
+        <button class="btn-buy" onclick="buyItem('small token pack', '10.000đ', '01')">Mua Ngay</button>
+      </div>
+
+      <div class="product-card">
+        <img src="images/token.png" alt="medium" class="product-img">
+        <div class="product-name">medium tokens pack + 25 tokens</div>
+        <div class="product-price">20.000đ</div>
+        <button class="btn-buy" onclick="buyItem('medium tokens pack', '20.000đ', '02')">Mua Ngay</button>
+      </div>
+
+      <div class="product-card">
+        <img src="images/token.png" alt="big tokens pack" class="product-img">
+        <div class="product-name">big tokens pack + 75 tokens</div>
+        <div class="product-price">50.000đ</div>
+        <button class="btn-buy" onclick="buyItem('big tokens pack', '50.000đ', '03')">Mua Ngay</button>
+      </div>
+
+       <div class="product-card">
+        <img src="images/token.png" alt="super tokens pack" class="product-img">
+        <div class="product-name">super tokens pack + 150 tokens</div>
+        <div class="product-price">100.000đ</div>
+        <button class="btn-buy" onclick="buyItem('super tokens pack', '100.000đ', '04')">Mua Ngay</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="paymentModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    
+    <h2 style="color: #ff9800; margin-top: 0;">Thanh Toán</h2>
+    <div style="font-size: 13px; color: #ccc;">Quét mã QR để thanh toán</div>
+
+    <div class="qr-frame">
+      <img id="qrImage" src="images/token.png" class="qr-img" alt="QR Code">
+    </div>
+
+    <div class="pay-info">
+      <div class="pay-row">
+        <span>Sản phẩm:</span>
+        <span id="payName" class="pay-val">Tên SP</span>
+      </div>
+      <div class="pay-row">
+        <span>Giá tiền:</span>
+        <span id="payPrice" class="pay-val">0đ</span>
+      </div>
+      <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
+      
+      <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">Nội dung chuyển khoản:</div>
+      <div class="transfer-box">
+        <span id="transContent" class="transfer-text">MUA XXX</span>
+      </div>
+    </div>
+
+    <div style="font-size: 12px; color: #888; margin-top: 10px;">
+      *Sau khi chuyển khoản, bạn nên chụp màn hình lại!
+    </div>
+  </div>
 </div>
 
 <script src="script.js"></script>

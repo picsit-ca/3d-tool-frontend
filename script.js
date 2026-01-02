@@ -47,6 +47,53 @@ async function updateTokenUI() {
   );
 }
 
+let MyBank = {
+  BANK_ID: "BAB",
+  ACCOUNT_NO: "050001060015835", // pls donate tui xai Bac A Bank=)
+}
+
+function scrollToShop() {
+  const shopDiv = document.getElementById('shopSection');
+  shopDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+const modal = document.getElementById("paymentModal");
+const payNameEl = document.getElementById("payName");
+const payPriceEl = document.getElementById("payPrice");
+const transContentEl = document.getElementById("transContent");
+const qrImage = document.getElementById("qrImage");
+
+function buyItem(itemName, priceText, productId) {
+  payNameEl.textContent = itemName;
+  payPriceEl.textContent = priceText;
+
+  const amount = Number(priceText.replace(/[^\d]/g, ''));
+  const orderId = "O" + Date.now();
+  const userId = window.USER?.id || "GUEST";
+
+  const addInfo = `P${productId}-U${userId}-${orderId}`;
+
+  transContentEl.textContent = addInfo;
+
+  const qr = `https://img.vietqr.io/image/${MyBank.BANK_ID}-${MyBank.ACCOUNT_NO}-qr_only.png` +
+             `?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
+
+  qrImage.src = qr;
+  modal.style.display = "block";
+}
+
+// dong chuyen khoan
+function closeModal() {
+  modal.style.display = "none";
+}
+
+// dong chuyen khoan khi click ra ngoai
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
 // dang nhap google
 function parseJwt(token){
   return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
