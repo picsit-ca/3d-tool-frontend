@@ -71,7 +71,7 @@ function buyItem(itemName, priceText, productId) {
   const orderId = "O" + Date.now();
   const userId = window.USER?.id || "GUEST";
 
-  const addInfo = `P${productId}-U${userId}-${orderId}`;
+  const addInfo = `P${productId}U${userId}${orderId}`;
 
   transContentEl.textContent = addInfo;
 
