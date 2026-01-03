@@ -106,15 +106,26 @@ async function onGoogleLogin(res){
   document.getElementById("loginStatus").textContent = "Xin chào, " + p.name;
   document.querySelector(".g_id_signin").style.display = "none";
 
-  // LOGIN BACKEND
-  await fetch('https://threed-tool-backend.onrender.com/login', {
-    method: 'POST',
-    credentials: 'include'
-  });
+  try {
+    // LOGIN BACKEND
+    const loginRes = await fetch('https://threed-tool-backend.onrender.com/login', {
+      method: 'POST',
+      credentials: 'include'
+    });
 
-  updateTokenUI();
+    if (!loginRes.ok) {
+        console.error("Login backend thất bại");
+        return;
+    }
+    
+    setTimeout(() => {
+        updateTokenUI();
+        if(CURRENT_FILE_DATA) updateConvertButton();
+    }, 500); 
 
-  if(CURRENT_FILE_DATA) updateConvertButton();
+  } catch (e) {
+    console.error("Lỗi mạng khi login:", e);
+  }
 }
 
 // lay thuoc tinh block
