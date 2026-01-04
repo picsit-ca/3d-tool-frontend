@@ -5,6 +5,9 @@ let CURRENT_COST = 0;
 let USER_BLOCKS = 0;
 let USER_TOKENS = 0; 
 
+window.AUTH_USER = null;
+window.ME = null;
+
 let isConverting = false;
 let abortController = null;
 
@@ -51,14 +54,14 @@ async function updateTokenUI(retryCount = 0) {
 
     if (res.ok) {
       const data = await res.json();
-      window.USER = data;
+      window.ME = data;
       USER_TOKENS = data.tokens;
       el.innerHTML = `<div style="font-weight:bold">Tokens: ${USER_TOKENS} 🪙</div>`;
       
       overlay.style.display = 'none'; 
     } else {
       // loi nhung server phan hoi -> Tat loading
-      window.USER = null;
+      window.ME = null;
       overlay.style.display = 'none';
       el.innerHTML = `<div style="color:#aaa; font-style:italic">Vui lòng đăng nhập để xem Token</div>`;
     }
@@ -92,18 +95,23 @@ const transContentEl = document.getElementById("transContent");
 const qrImage = document.getElementById("qrImage");
 
 function buyItem(itemName, priceText, productId) {
-  if (!window.USER || !window.USER.id) {
-    alert("Hệ thống chưa nhận diện được tài khoản. Vui lòng đăng nhập lại Google!");
-    location.reload(); 
+  if (!window.AUTH_USER?.id) {
+    alert("Vui lòng đăng nhập Google trước");
     return;
   }
+
+  if (!window.ME) {
+    alert("Đang đồng bộ tài khoản, vui lòng chờ 1 chút");
+    return;
+  }
+
+  const userId = window.AUTH_USER.id;
 
   payNameEl.textContent = itemName;
   payPriceEl.textContent = priceText;
 
   const amount = Number(priceText.replace(/[^\d]/g, ''));
   const orderId = "O" + Date.now();
-  const userId = window.USER.id;
 
   const addInfo = `P${productId}U${userId}${orderId}`;
 
@@ -135,7 +143,7 @@ function parseJwt(token){
 
 async function onGoogleLogin(res){
   const p = parseJwt(res.credential);
-  window.USER = { id:p.sub, email:p.email, name:p.name };
+  window.AUTH_USER = { id:p.sub, email:p.email, name:p.name };
 
   document.getElementById("loginStatus").textContent = "Xin chào, " + p.name;
   document.querySelector(".g_id_signin").style.display = "none";
@@ -306,7 +314,7 @@ fileInput.onchange = () => {
 };
 
 function updateConvertButton(count) {
-  if (!window.USER) {
+  if (!window.ME) {
     convertBtn.textContent = "VUI LÒNG ĐĂNG NHẬP TRƯỚC";
     convertBtn.disabled = true;
     return;
@@ -406,7 +414,7 @@ convertBtn.onclick = async () => {
   } finally {
     isConverting = false;
     abortController = null;
-    updateConvertButton(CURRENT_FILE_DATA.blockCount);
+    updateConvertButton(CURRENT_FILE_DATA.length);
   }
 };
 
