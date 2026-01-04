@@ -8,6 +8,37 @@ let USER_TOKENS = 0;
 let isConverting = false;
 let abortController = null;
 
+let products = [
+  {
+    Pid: "01",
+    Pavatar: "images/token.png",
+    Pname: "Small Tokens Pack",
+    Pprices: "10.000 VND",
+    Ptokens: 10
+  },
+  {
+    Pid: "02",
+    Pavatar: "images/token.png",
+    Pname: "Medium Tokens Pack",
+    Pprices: "20.000 VND",
+    Ptokens: 25
+  },
+  {
+    Pid: "03",
+    Pavatar: "images/token.png",
+    Pname: "Big Tokens Pack",
+    Pprices: "50.000 VND",
+    Ptokens: 75
+  },
+  {
+    Pid: "04",
+    Pavatar: "images/token.png",
+    Pname: "Super Tokens Pack",
+    Pprices: "100.000 VND",
+    Ptokens: 150
+  },
+]
+
 async function updateTokenUI() {
   const el = document.getElementById('tokenUI');
 
@@ -64,6 +95,11 @@ const transContentEl = document.getElementById("transContent");
 const qrImage = document.getElementById("qrImage");
 
 function buyItem(itemName, priceText, productId) {
+
+  if (!Window.USER || !Window.USER.id) {
+    alert("Vui lòng đăng nhập hoặc đợi hệ thống tải thông tin tài khoản!");
+    return;
+  }
   payNameEl.textContent = itemName;
   payPriceEl.textContent = priceText;
 
@@ -380,3 +416,22 @@ copyBtn.onclick = () => {
   navigator.clipboard.writeText(output.textContent);
   showNotify("Đã copy script vào bộ nhớ tạm!", true);
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  const productInner = document.querySelector(".product-grid");
+  let productRenderUI = "";
+
+  products.forEach((item, index) => {
+    productRenderUI += `
+      <div class="product-card">
+        <img src="${item.Pavatar}" alt="${item.Pname}" class="product-img">
+        <div class="product-name">${item.Pname}<br>(+${item.Ptokens} Tokens)</div>
+        <div class="product-price">${item.Pprices}</div>
+        <button class="btn-buy" onclick="buyItem('${item.Pname}', '${item.Pprices}', '${item.Pid}')">Mua Ngay</button>
+      </div>
+    `;
+  });
+
+  productInner.innerHTML = productRenderUI;
+  updateTokenUI();
+})
