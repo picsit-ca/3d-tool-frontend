@@ -39,43 +39,40 @@ let products = [
   },
 ]
 
-async function updateTokenUI() {
+async function updateTokenUI(retryCount = 0) {
   const el = document.getElementById('tokenUI');
+  const overlay = document.getElementById('loadingOverlay');
+  const statusTxt = document.getElementById('loadStatus');
 
   try {
     const res = await fetch('https://threed-tool-backend.onrender.com/me', {
       credentials: 'include'
     });
 
-    if (!res.ok) {
-      window.USER = null;
-      USER_TOKENS = 0;
-
-      el.innerHTML = `
-        <div style="color:#aaa; font-style:italic">
-          Vui lòng đăng nhập để xem Token
-        </div>`;
-    } else {
+    if (res.ok) {
       const data = await res.json();
-
       window.USER = data;
       USER_TOKENS = data.tokens;
-
-      el.innerHTML = `
-        <div style="font-weight:bold">
-          Tokens: ${USER_TOKENS} 🪙
-        </div>`;
+      el.innerHTML = `<div style="font-weight:bold">Tokens: ${USER_TOKENS} 🪙</div>`;
+      
+      overlay.style.display = 'none'; 
+    } else {
+      // loi nhung server phan hoi -> Tat loading
+      window.USER = null;
+      overlay.style.display = 'none';
+      el.innerHTML = `<div style="color:#aaa; font-style:italic">Vui lòng đăng nhập để xem Token</div>`;
     }
   } catch (err) {
-    el.innerHTML = `
-      <div style="color:red">
-        Không kết nối được server
-      </div>`;
+    console.log("Server is sleeping, retrying...");
+    if (retryCount < 10) { //~30s
+      statusTxt.innerText = `Đang khởi động máy chủ... (${retryCount + 1}/10)`;
+      setTimeout(() => updateTokenUI(retryCount + 1), 3000);
+    } else {
+      // neu qua lau van cho vao nhung bao loi
+      overlay.style.display = 'none';
+      el.innerHTML = `<div style="color:red">Server bận, hãy thử tải lại trang (F5)</div>`;
+    }
   }
-
-  updateConvertButton(
-    CURRENT_FILE_DATA ? CURRENT_FILE_DATA.blockCount : 0
-  );
 }
 
 let MyBank = {
@@ -95,17 +92,18 @@ const transContentEl = document.getElementById("transContent");
 const qrImage = document.getElementById("qrImage");
 
 function buyItem(itemName, priceText, productId) {
-
-  if (!Window.USER || !Window.USER.id) {
-    alert("Vui lòng đăng nhập hoặc đợi hệ thống tải thông tin tài khoản!");
+  if (!window.USER || !window.USER.id) {
+    alert("Hệ thống chưa nhận diện được tài khoản. Vui lòng đăng nhập lại Google!");
+    location.reload(); 
     return;
   }
+
   payNameEl.textContent = itemName;
   payPriceEl.textContent = priceText;
 
   const amount = Number(priceText.replace(/[^\d]/g, ''));
   const orderId = "O" + Date.now();
-  const userId = window.USER?.id || "GUEST";
+  const userId = window.USER.id;
 
   const addInfo = `P${productId}U${userId}${orderId}`;
 
