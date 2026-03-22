@@ -1,2 +1,10 @@
+# Thư mục server (không đẩy backend lên frontend repo)
 server/
+
+# Dependencies
 node_modules/
+
+# Biến môi trường – KHÔNG BAO GIỜ đẩy lên GitHub
+.env
+server/.env
+*.env
