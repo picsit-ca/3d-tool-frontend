@@ -59,21 +59,24 @@ async function updateTokenUI(retryCount = 0) {
       el.innerHTML = `<div style="font-weight:bold">Tokens: ${USER_TOKENS} 🪙</div>`;
       
       overlay.style.display = 'none'; 
-    } else {
-      // loi nhung server phan hoi -> Tat loading
-      window.ME = null;
-      overlay.style.display = 'none';
-      el.innerHTML = `<div style="color:#aaa; font-style:italic">Vui lòng đăng nhập để xem Token</div>`;
+    } else if (res.status === 401) {
+        // Not logged in, don't retry
+        window.ME = null;
+        overlay.style.display = 'none';
+        el.innerHTML = `<div style="color:#aaa; font-style:italic">Vui lòng đăng nhập để xem Token</div>`;
+    } 
+    else {
+      // Other server errors, retry
+      throw new Error(`Server error: ${res.status}`);
     }
   } catch (err) {
-    console.log("Server is sleeping, retrying...");
-    if (retryCount < 10) { //~30s
-      statusTxt.innerText = `Đang khởi động máy chủ... (${retryCount + 1}/10)`;
+    console.log(`Error fetching token (attempt ${retryCount + 1}):`, err.message);
+    if (retryCount < 30) { 
+      statusTxt.innerText = `Đang kết nối lại máy chủ... (${retryCount + 1}/30)`;
       setTimeout(() => updateTokenUI(retryCount + 1), 3000);
     } else {
-      // neu qua lau van cho vao nhung bao loi
       overlay.style.display = 'none';
-      el.innerHTML = `<div style="color:red">Server bận, hãy thử tải lại trang (F5)</div>`;
+      el.innerHTML = `<div style="color:red">Không thể kết nối tới máy chủ. Vui lòng tải lại trang (F5).</div>`;
     }
   }
 }
@@ -152,7 +155,11 @@ async function onGoogleLogin(res){
     // LOGIN BACKEND
     const loginRes = await fetch('https://threed-tool-backend.onrender.com/login', {
       method: 'POST',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId: p.sub })
     });
 
     if (!loginRes.ok) {
