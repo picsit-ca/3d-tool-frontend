@@ -48,7 +48,7 @@ async function updateTokenUI(retryCount = 0) {
   const statusTxt = document.getElementById('loadStatus');
 
   try {
-    const res = await fetch('https://threed-tool-backend.onrender.com/me', {
+    const res = await fetch('http://localhost:3000/me', {
       credentials: 'include'
     });
 
@@ -153,7 +153,7 @@ async function onGoogleLogin(res){
 
   try {
     // LOGIN BACKEND
-    const loginRes = await fetch('https://threed-tool-backend.onrender.com/login', {
+    const loginRes = await fetch('http://localhost:3000/login', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -679,21 +679,199 @@ copyBtn.onclick = () => {
   showNotify("Đã copy script vào bộ nhớ tạm!", true);
 };
 
+// Check for token parameter in URL and handle login completion
+function handleTokenFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  
+  if (token) {
+    // Save token to localStorage
+    localStorage.setItem('token', token);
+    
+    // Decode JWT token to get user info
+    try {
+      const payload = parseJwt(token);
+      window.AUTH_USER = { 
+        id: payload.sub,
+        email: payload.email, 
+        name: payload.name 
+      };
+      
+      // Clean the URL by removing the token parameter
+      window.history.replaceState({}, document.title, '/');
+      
+      console.log('Login successful, token saved!');
+      
+      // Update UI to show login success with user's name
+      const loginStatusEl = document.getElementById("loginStatus");
+      if (loginStatusEl) {
+          loginStatusEl.textContent = "Xin chào, " + payload.name;
+      }
+      
+      // Hide login button defensively
+      const loginBtn = document.querySelector(".g_id_signin") || document.getElementById("google-login-btn");
+      if (loginBtn) {
+          loginBtn.style.display = "none";
+      }
+      
+      // Update token UI
+      updateTokenUI();
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      // Fallback to basic UI update
+      window.history.replaceState({}, document.title, '/');
+      document.getElementById("loginStatus").textContent = "Đăng nhập thành công!";
+      document.querySelector(".g_id_signin").style.display = "none";
+      updateTokenUI();
+    }
+  }
+}
+
+// ==============================================
+// RECHARGE / SCRATCH CARD FEATURE
+// ==============================================
+
+async function loadTransactionHistory() {
+    if (!window.ME) return;
+    
+    try {
+        const res = await fetch('/api/recharge/history', {
+            credentials: 'include'
+        });
+        
+        if (res.ok) {
+            const transactions = await res.json();
+            renderTransactionHistory(transactions);
+        }
+    } catch (error) {
+        console.error('Error loading history:', error);
+    }
+}
+
+function renderTransactionHistory(transactions) {
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (!transactions || transactions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted py-4">Chưa có lịch sử giao dịch</td>
+            </tr>
+        `;
+        return;
+    }
+
+    const statusBadges = {
+        pending: '<span class="badge bg-warning">Đang xử lý</span>',
+        success: '<span class="badge bg-success">Thành công</span>',
+        failed: '<span class="badge bg-danger">Thất bại</span>',
+        invalid: '<span class="badge bg-secondary">Thẻ không hợp lệ</span>'
+    };
+
+    tbody.innerHTML = transactions.map(tx => `
+        <tr>
+            <td>${new Date(tx.createdAt).toLocaleString('vi-VN')}</td>
+            <td>${tx.telco}</td>
+            <td>${new Intl.NumberFormat('vi-VN').format(tx.declaredValue)}đ</td>
+            <td>${statusBadges[tx.status] || tx.status}</td>
+            <td>${tx.tokensAdded > 0 ? `+${tx.tokensAdded} Tokens` : '-'}</td>
+        </tr>
+    `).join('');
+}
+
+function setRechargeLoading(loading) {
+    const btn = document.getElementById('rechargeBtn');
+    const btnText = document.getElementById('rechargeBtnText');
+    const loadingEl = document.getElementById('rechargeLoading');
+    
+    btn.disabled = loading;
+    btnText.classList.toggle('d-none', loading);
+    loadingEl.classList.toggle('d-none', !loading);
+}
+
+async function submitRechargeForm(e) {
+    e.preventDefault();
+    
+    if (!window.ME) {
+        alert('Vui lòng đăng nhập trước');
+        return;
+    }
+
+    const telco = document.getElementById('telcoSelect').value;
+    const amount = Number(document.getElementById('amountSelect').value);
+    const serial = document.getElementById('cardSeriInput').value.trim();
+    const code = document.getElementById('cardCodeInput').value.trim();
+
+    if (!telco || !amount || !cardSeri || !cardCode) {
+        alert('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+
+    setRechargeLoading(true);
+
+    try {
+        const res = await fetch('/api/recharge', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ telco, amount, serial, code })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            showNotify('✅ Đã gửi yêu cầu nạp thẻ!', true);
+            // Reset form
+            document.getElementById('rechargeForm').reset();
+            // Refresh history
+            await loadTransactionHistory();
+        } else {
+            showNotify('❌ Lỗi: ' + (data.error || 'Không thể gửi yêu cầu'), false);
+        }
+    } catch (error) {
+        console.error('Recharge error:', error);
+        showNotify('❌ Lỗi kết nối máy chủ', false);
+    } finally {
+        setRechargeLoading(false);
+    }
+}
+
+// ==============================================
+// INITIALIZATION
+// ==============================================
+
 document.addEventListener("DOMContentLoaded", () => {
-  const productInner = document.querySelector(".product-grid");
-  let productRenderUI = "";
+   // Check for token on page load
+   handleTokenFromURL();
+   
+   const productInner = document.querySelector(".product-grid");
+   let productRenderUI = "";
 
-  products.forEach((item, index) => {
-    productRenderUI += `
-      <div class="product-card">
-        <img src="${item.Pavatar}" alt="${item.Pname}" class="product-img">
-        <div class="product-name">${item.Pname}<br>(+${item.Ptokens} Tokens)</div>
-        <div class="product-price">${item.Pprices}</div>
-        <button class="btn-buy" onclick="buyItem('${item.Pname}', '${item.Pprices}', '${item.Pid}')">Mua Ngay</button>
-      </div>
-    `;
-  });
+   products.forEach((item, index) => {
+     productRenderUI += `
+       <div class="product-card">
+         <img src="${item.Pavatar}" alt="${item.Pname}" class="product-img">
+         <div class="product-name">${item.Pname}<br>(+${item.Ptokens} Tokens)</div>
+         <div class="product-price">${item.Pprices}</div>
+         <button class="btn-buy" onclick="buyItem('${item.Pname}', '${item.Pprices}', '${item.Pid}')">Mua Ngay</button>
+       </div>
+     `;
+   });
 
-  productInner.innerHTML = productRenderUI;
-  updateTokenUI();
+   productInner.innerHTML = productRenderUI;
+   updateTokenUI();
+
+   // Initialize recharge form
+   const rechargeForm = document.getElementById('rechargeForm');
+   if (rechargeForm) {
+       rechargeForm.addEventListener('submit', submitRechargeForm);
+   }
+
+   // Load transaction history when user is logged in
+   const originalUpdateTokenUI = updateTokenUI;
+   window.updateTokenUI = async function(...args) {
+       await originalUpdateTokenUI(...args);
+       if (window.ME) {
+           loadTransactionHistory();
+       }
+   };
 })

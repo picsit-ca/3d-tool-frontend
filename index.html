@@ -6,7 +6,9 @@
 <title>3D → Mini World Lua Script Converter</title>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 
@@ -30,11 +32,15 @@
   </div>
 
   <div class="section-token">
-    <div id="loginBox">
-      <div id="g_id_onload"
-        data-client_id="67088298066-j41t84219v1nv3bap6e8oh842i3cqfr3.apps.googleusercontent.com"
-        data-callback="onGoogleLogin"></div>
-      <div class="g_id_signin" data-theme="outline" data-size="large"></div>
+<div id="loginBox">
+      <a href="http://localhost:3000/auth/google" class="btn-google-login">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:20px; height:20px; background:#4285f4; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+            <span style="color:white; font-weight:bold; font-size:12px;">G</span>
+          </div>
+          <span>Đăng nhập bằng Google</span>
+        </div>
+      </a>
       <div id="loginStatus" style="margin-top:8px; font-size:14px; color:#aaa;"></div>
     </div>
   </div>
@@ -71,6 +77,86 @@
   <div id="notify" class="notify"></div>
   <button id="copyBtn" disabled>📋 Copy Script</button>
   <pre id="output">// Script kết quả sẽ hiển thị ở đây...</pre>
+
+  <div id="rechargeSection" class="mt-5 mb-5">
+    <h2 class="shop-title mb-4">💳 Nạp Token bằng Thẻ Cào</h2>
+
+    <div class="card bg-dark border-secondary mb-4">
+      <div class="card-body">
+        <form id="rechargeForm" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-light">Loại thẻ</label>
+            <select id="telcoSelect" class="form-select bg-dark text-light" required>
+              <option value="">-- Chọn nhà mạng --</option>
+              <option value="VIETTEL">Viettel</option>
+              <option value="VINAPHONE">Vinaphone</option>
+              <option value="MOBIFONE">Mobifone</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label text-light">Mệnh giá</label>
+            <select id="amountSelect" class="form-select bg-dark text-light" required>
+              <option value="">-- Chọn mệnh giá --</option>
+              <option value="10000">10.000đ</option>
+              <option value="20000">20.000đ</option>
+              <option value="50000">50.000đ</option>
+              <option value="100000">100.000đ</option>
+              <option value="200000">200.000đ</option>
+              <option value="500000">500.000đ</option>
+              <option value="1000000">1.000.000đ</option>
+            </select>
+            <div class="form-text text-warning mt-1">⚠️ Chọn sai mệnh giá sẽ bị mất thẻ</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label text-light">Số Seri</label>
+            <input type="text" id="cardSeriInput" class="form-control bg-dark text-light" placeholder="Nhập số seri" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label text-light">Mã thẻ</label>
+            <input type="text" id="cardCodeInput" class="form-control bg-dark text-light" placeholder="Nhập mã thẻ PIN" required>
+          </div>
+
+          <div class="col-12 mt-4">
+            <button type="submit" id="rechargeBtn" class="btn btn-success w-100 py-2">
+              <span id="rechargeBtnText">✅ Nạp thẻ ngay</span>
+              <span id="rechargeLoading" class="d-none">
+                <span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card bg-dark border-secondary">
+      <div class="card-header bg-dark border-secondary">
+        <h5 class="mb-0 text-light">📋 Lịch sử nạp thẻ</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover mb-0" id="historyTable">
+            <thead>
+              <tr>
+                <th>Ngày giờ</th>
+                <th>Nhà mạng</th>
+                <th>Mệnh giá</th>
+                <th>Trạng thái</th>
+                <th>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">Chưa có lịch sử giao dịch</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="shopSection">
     <h2 class="shop-title">🛒 Cửa Hàng Tokens</h2>
